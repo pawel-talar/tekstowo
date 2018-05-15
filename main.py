@@ -66,6 +66,19 @@ def retrieve_artist_and_title(song):
     return artist, title
 
 
+class LyricsNotFound(Exception):
+    pass
+
+
+def download_lyrics(song):
+    search_results = search_song(song)
+    try:
+        song_page = parse_search_results(search_results)[0]
+        return parse_song_lyrics(fetch_lyrics(song_page))
+    except IndexError:
+        raise LyricsNotFound("No lyrics found")
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Find lyrics for a song using tekstowo.pl')
     parser.add_argument('song', help='Song to find lyrics for in format (with quotes): '
@@ -73,12 +86,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     try:
         song = Song(*retrieve_artist_and_title(args.song), None)
-    except InvalidSongFormat as e:
+        print(download_lyrics(song))
+    except (InvalidSongFormat, LyricsNotFound) as e:
         print(e)
         sys.exit(1)
 
-    ss = search_song(song)
-    psr = parse_search_results(ss)[0]
-    fl = fetch_lyrics(psr)
-    psl = parse_song_lyrics(fl)
-    print(psl)
