@@ -46,36 +46,14 @@ class Parser:
         return songs_list
 
     def parse_song_lyrics(self, html):
-        lyrics = html.decode('utf-8')
-        lyrics = lyrics.split('<h2>Tekst piosenki:</h2><br />')[1]
-        lyrics = lyrics.split('<p>&nbsp;</p>')[0]
-        lyrics = lyrics.replace('<br />', '\n')
-        lyrics = lyrics.replace('\n\n', '\n')
-        lyrics = lyrics.strip()  # remove leading and trailing spaces
-        return lyrics
+        return html.decode('utf-8')\
+            .split('<h2>Tekst piosenki:</h2><br />')[1]\
+            .split('<p>&nbsp;</p>')[0]\
+            .replace('<br />', '\n')\
+            .replace('\n\n', '\n')\
+            .strip()  # remove leading and trailing spaces
 
 class Main:
-    def run(self):
-        if os.name == 'nt':
-            os.system('chcp 65001')
-        self._fetcher = Fetcher()
-        self._parser = Parser()
-        self.last_played = ""
-        while True:
-            current = self.current_song()
-            if current:
-                cls()
-                print(self.get_lyrics(current))
-            time.sleep(1)
-
-        def current_song(self):
-            playing = self._winamp.getCurrentTrackName()
-            playing = playing.replace(' [Stopped]', '')
-            if playing != self.last_played:
-                self.last_played = playing
-                return playing
-            self.last_played = playing
-
         def get_lyrics(self, song, n=0):
             song = '. '.join(song.split('. ')[1:])[:-9].split(' - ')
             artist = song[0]
