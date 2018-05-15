@@ -2,8 +2,6 @@ import argparse
 
 import collections
 import requests
-import time
-import os
 import sys
 
 
@@ -13,59 +11,43 @@ SEARCH_FMT_STR = SEARCH_BASE_URL + '?search-title={title}&search-artist={artist}
 Song = collections.namedtuple('Song', ['artist', 'title', 'url'])
 
 
-class Fetcher:
-    def fetch_page(self, url):
-        with requests.Session() as session:
-            response = session.get(url)
-            return response.content
-
-    def search_song(self, artist, title):
-        destination_url = SEARCH_FMT_STR.format(title=title, artist=artist)
-        return self.fetch_page(destination_url)
-
-    def fetch_lyrics(self, song):
-        return self.fetch_page(song.url)
+def fetch_page(url):
+    with requests.Session() as session:
+        response = session.get(url)
+        return response.content
 
 
-class Parser:
-    def parse_search_results(self, results):
-        songs_list = []
-        results = results.decode('utf-8')
-        if 'Znalezieni artyści' in results:
-            results = results.split('Znalezieni artyści:')[0]
-        operation_array = results.split('<div class="box-przeboje">')[1:]
-        for item in operation_array:
-            temp_artist_title = item.split('title="')[1].split('">')[0]
-            temp_artist = temp_artist_title.split(' - ')[0]
-            temp_title = temp_artist_title.split(' - ')[1]
-            temp_url = 'http://www.tekstowo.pl'
-            temp_url += item.split('a href="')[1].split('.html')[0]
-            temp_url += '.html'
-            songs_list.append(Song(temp_artist, temp_title, temp_url))
+def search_song(song):
+    destination_url = SEARCH_FMT_STR.format(title=song.title, artist=song.artist)
+    return fetch_page(destination_url)
 
-        return songs_list
 
-    def parse_song_lyrics(self, html):
-        return html.decode('utf-8')\
-            .split('<h2>Tekst piosenki:</h2><br />')[1]\
-            .split('<p>&nbsp;</p>')[0]\
-            .replace('<br />', '\n')\
-            .replace('\n\n', '\n')\
-            .strip()  # remove leading and trailing spaces
+def fetch_lyrics(song):
+    return fetch_page(song.url)
 
-class Main:
-        def get_lyrics(self, song, n=0):
-            song = '. '.join(song.split('. ')[1:])[:-9].split(' - ')
-            artist = song[0]
-            title = song[1]
-            temp_txt = self._fetcher.search_song(artist, title)
-            temp_results = self._parser.parse_search_results(temp_txt)
-            try:
-                temp_txt = self._fetcher.fetch_lyrics(temp_results[n])  # 1st song
-            except IndexError:
-                return "Song not found on tekstowo.pl!"
-            temp_txt = self._parser.parse_song_lyrics(temp_txt)
-            return temp_txt
+
+def extract_song(item):
+    artist_title = item.split('title="')[1].split('">')[0]
+    artist, title = map(str.strip, artist_title.split(' - ')[:2])
+    url = 'http://www.tekstowo.pl{}.html' \
+        .format(item.split('a href="')[1].split('.html')[0])
+    return Song(artist, title, url)
+
+
+def parse_search_results(results):
+    results = results.decode('utf-8')
+    if 'Znalezieni artyści' in results:
+        results = results.split('Znalezieni artyści:')[0]
+    return [extract_song(item) for item in results.split('<div class="box-przeboje">')[1:]]
+
+
+def parse_song_lyrics(html):
+    return html.decode('utf-8') \
+        .split('<h2>Tekst piosenki:</h2><br />')[1] \
+        .split('<p>&nbsp;</p>')[0] \
+        .replace('<br />', '\n') \
+        .replace('\n\n', '\n') \
+        .strip()
 
 
 class InvalidSongFormat(Exception):
@@ -90,9 +72,13 @@ if __name__ == '__main__':
                                      '"<ARTIST> - <TITLE>"')
     args = parser.parse_args()
     try:
-        artist, title = retrieve_artist_and_title(args.song)
+        song = Song(*retrieve_artist_and_title(args.song), None)
     except InvalidSongFormat as e:
         print(e)
         sys.exit(1)
 
-    print(Parser().parse_song_lyrics(Fetcher().fetch_lyrics(Parser().parse_search_results(Fetcher().search_song(artist, title))[0])))
+    ss = search_song(song)
+    psr = parse_search_results(ss)[0]
+    fl = fetch_lyrics(psr)
+    psl = parse_song_lyrics(fl)
+    print(psl)
