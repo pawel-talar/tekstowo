@@ -102,19 +102,21 @@ def download_translation(song):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Find lyrics for a song using tekstowo.pl')
-    parser.add_argument('song', help='Song to find lyrics for in format (with quotes): '
+    parser.add_argument('song', type=str, help='Song to find lyrics for in format (with quotes): '
                                      '"<ARTIST> - <TITLE>"')
-
+    parser.add_argument("-t", "--translation", help='Flag to clarify we want download just translation, default lirycs', action="store_true")
+    parser.add_argument("--lt", help='Flag to clarify we want download lirycs and translation, default only lirycs', action="store_true")
     args = parser.parse_args()
-
-    try:
-        print(download_lyrics(Song(*retrieve_artist_and_title(args.song), None)))
-    except (InvalidSongFormat, LyricsNotFound) as e:
-        print(e)
-        sys.exit(1)
-    try:
-        print(download_translation(Song(*retrieve_artist_and_title(args.song), None)))
-    except (InvalidSongFormat, LyricsNotFound) as e:
-        print(e)
-        sys.exit(1)
+    if(not args.translation):
+        try:
+            print(download_lyrics(Song(*retrieve_artist_and_title(args.song), None)))
+        except (InvalidSongFormat, LyricsNotFound) as e:
+            print(e)
+            sys.exit(1)
+    if(args.translation or args.lt):
+        try:
+            print(download_translation(Song(*retrieve_artist_and_title(args.song), None)))
+        except (InvalidSongFormat, LyricsNotFound) as e:
+            print(e)
+            sys.exit(1)
 
