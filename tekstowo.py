@@ -101,7 +101,7 @@ def download_translation(song):
         raise LyricsNotFound("No lyrics found")
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Find lyrics for a song using tekstowo.pl')
+    parser = argparse.ArgumentParser(description='Find lyrics and translation for a song using tekstowo.pl')
     parser.add_argument('song', type=str, help='Song to find lyrics for in format (with quotes): '
                                      '"<ARTIST> - <TITLE>"')
     parser.add_argument("-t", "--translation", help='Flag to clarify we want download just translation, default lirycs', action="store_true")

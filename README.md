@@ -7,16 +7,21 @@ Retrieve lyrics (without translation for now) of a given song from
 
 ```shell
 python tekstowo.py -h
-usage: tekstowo.py [-h] song
+usage: tekstowo.py [-h] [-t] [--lt] song
 
-Find lyrics for a song using tekstowo.pl
+Find lyrics and translation for a song using tekstowo.pl
 
 positional arguments:
-  song        Song to find lyrics for in format (with quotes): "<ARTIST> -
-              <TITLE>"
+  song               Song to find lyrics for in format (with quotes):
+                     "<ARTIST> - <TITLE>"
 
 optional arguments:
-  -h, --help  show this help message and exit
+  -h, --help         show this help message and exit
+  -t, --translation  Flag to clarify we want download just translation,
+                     default lirycs
+  --lt               Flag to clarify we want download lirycs and translation,
+                     default only lirycs
+
 ```
 
 ### Example
