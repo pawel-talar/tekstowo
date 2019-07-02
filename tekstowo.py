@@ -21,6 +21,9 @@ class InvalidSongFormat(Exception):
 class LyricsNotFound(Exception):
     pass
 
+class TranslationNotFound(Exception):
+    pass
+
 
 def fetch_page(url):
     with requests.Session() as session:
@@ -63,9 +66,11 @@ def parse_song_lyrics(html):
 
 def parse_song_translation(html):
     code_as_string = html.decode('utf-8')
-    begin_line = re.search(translations_localizator, code_as_string)[0]
+    begin_line = re.search(translations_localizator, code_as_string)
+    if begin_line == None:
+        raise TranslationNotFound("Cannot find translation for given song")
     return code_as_string \
-        .split(begin_line)[1] \
+        .split(begin_line[0])[1] \
         .split('<p>&nbsp;</p>')[0] \
         .replace('<br />', '\n') \
         .replace('\n\n', '\n') \
@@ -98,14 +103,14 @@ def download_translation(song):
         song_page = parse_search_results(search_results)[0]
         return parse_song_translation(fetch_lyrics(song_page))
     except IndexError:
-        raise LyricsNotFound("No lyrics found")
+        raise TranslationNotFound("No translation found")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Find lyrics and translation for a song using tekstowo.pl')
     parser.add_argument('song', type=str, help='Song to find lyrics for in format (with quotes): '
                                      '"<ARTIST> - <TITLE>"')
-    parser.add_argument("-t", "--translation", help='Flag to clarify we want download just translation, default lirycs', action="store_true")
-    parser.add_argument("--lt", help='Flag to clarify we want download lirycs and translation, default only lirycs', action="store_true")
+    parser.add_argument("-t", "--translation", help='Download translation only', action="store_true")
+    parser.add_argument("--lt", help='Download lyrics&translation', action="store_true")
     args = parser.parse_args()
     if(not args.translation):
         try:
@@ -116,7 +121,7 @@ if __name__ == '__main__':
     if(args.translation or args.lt):
         try:
             print(download_translation(Song(*retrieve_artist_and_title(args.song), None)))
-        except (InvalidSongFormat, LyricsNotFound) as e:
+        except (InvalidSongFormat, TranslationNotFound, LyricsNotFound) as e:
             print(e)
             sys.exit(1)
 

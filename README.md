@@ -12,7 +12,7 @@ usage: tekstowo.py [-h] [-t] [--lt] song
 Find lyrics and translation for a song using tekstowo.pl
 
 positional arguments:
-  song               Song to find lyrics for in format (with quotes):
+  song        Song to find lyrics for in format (with quotes):
                      "<ARTIST> - <TITLE>"
 
 optional arguments:
