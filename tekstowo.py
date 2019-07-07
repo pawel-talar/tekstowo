@@ -110,18 +110,21 @@ if __name__ == '__main__':
     parser.add_argument('song', type=str, help='Song to find lyrics for in format (with quotes): '
                                      '"<ARTIST> - <TITLE>"')
     parser.add_argument("-t", "--translation", help='Download translation only', action="store_true")
-    parser.add_argument("--lt", help='Download lyrics&translation', action="store_true")
+    parser.add_argument("-l", "--lyrics", help='Download lyrics', action="store_true")
     args = parser.parse_args()
-    if(not args.translation):
+    lyrics = ''
+    translation = ''
+    if((not args.translation and not args.lyrics) or args.lyrics):
         try:
-            print(download_lyrics(Song(*retrieve_artist_and_title(args.song), None)))
+            lyrics = download_lyrics(Song(*retrieve_artist_and_title(args.song), None))
         except (InvalidSongFormat, LyricsNotFound) as e:
             print(e)
             sys.exit(1)
-    if(args.translation or args.lt):
+    if(args.translation):
         try:
-            print(download_translation(Song(*retrieve_artist_and_title(args.song), None)))
+            translation = download_translation(Song(*retrieve_artist_and_title(args.song), None))
         except (InvalidSongFormat, TranslationNotFound, LyricsNotFound) as e:
             print(e)
             sys.exit(1)
+    print(f"{lyrics}\n{translation}")
 
