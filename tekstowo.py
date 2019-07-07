@@ -109,7 +109,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Find lyrics and translation for a song using tekstowo.pl')
     parser.add_argument('song', type=str, help='Song to find lyrics for in format (with quotes): '
                                      '"<ARTIST> - <TITLE>"')
-    parser.add_argument("-t", "--translation", help='Download translation only', action="store_true")
+    parser.add_argument("-t", "--translation", help='Download translation', action="store_true")
     parser.add_argument("-l", "--lyrics", help='Download lyrics', action="store_true")
     args = parser.parse_args()
     lyrics = ''
