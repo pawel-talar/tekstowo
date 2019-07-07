@@ -32,7 +32,7 @@ I do, with an ear to lend
 ```
 
 ```
-$ python tekstowo.py "Rammstein - Rammlied"
+$ python tekstowo.py "Rammstein - Rammlied" -t
 Kto czeka z rozwagą,
 ten zostanie nagrodzony w odpowiednim czasie,
 Teraz oczekiwanie ma koniec,
