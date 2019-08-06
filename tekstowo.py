@@ -114,13 +114,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
     lyrics = ''
     translation = ''
-    if((not args.translation and not args.lyrics) or args.lyrics):
+    if not args.translation or args.lyrics:
         try:
             lyrics = download_lyrics(Song(*retrieve_artist_and_title(args.song), None))
         except (InvalidSongFormat, LyricsNotFound) as e:
             print(e)
             sys.exit(1)
-    if(args.translation):
+    if args.translation:
         try:
             translation = download_translation(Song(*retrieve_artist_and_title(args.song), None))
         except (InvalidSongFormat, TranslationNotFound, LyricsNotFound) as e:
